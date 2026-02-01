@@ -1,0 +1,5 @@
+palm -> move
+fist -> left click
+index -> scroll
+two_fingers -> right click
+pinch -> double left click
