@@ -13,7 +13,7 @@ test_ratio = 0.15
 root_dir = os.path.dirname(os.path.abspath(__file__))
 dataset_dir = os.path.join(root_dir, 'dataset')
 
-for split in ['train', 'val', 'test']:
+for split in ['train', 'val', 'test']:  
     for cls in classes:
         path = os.path.join(dataset_dir, split, cls)
         os.makedirs(path, exist_ok=True)

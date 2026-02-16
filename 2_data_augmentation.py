@@ -67,4 +67,3 @@ for split in splits:
                 save_path = os.path.join(input_dir, f"{base_name}_aug{i}.jpg")
                 cv2.imwrite(save_path, aug_img)
 
-print("Augmentation completed for all splits and classes!")
