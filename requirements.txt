@@ -39,8 +39,8 @@ PyGetWindow==0.0.9
 Pygments==2.19.2
 PyMsgBox==2.0.1
 pyobjc-core==12.1; sys_platform == "darwin"
-pyobjc-framework-Cocoa==12.1
-pyobjc-framework-Quartz==12.1
+pyobjc-framework-Cocoa==12.1; sys_platform == "darwin"
+pyobjc-framework-Quartz==12.1; sys_platform == "darwin"
 pyparsing==3.3.2
 pyperclip==1.11.0
 PyRect==0.2.0
