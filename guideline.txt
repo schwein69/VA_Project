@@ -6,6 +6,6 @@ pinch -> double left click
 
 
 
-python -m venv venv
-venv\Scripts\activate
-pip install opencv-python numpy pyautogui torch torchvision
+python3 -m venv venv
+source .venv/bin/activate
+pip install opencv-python mediapipe numpy tensorflow pyautogui scikit-image
