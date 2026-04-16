@@ -2,8 +2,11 @@
 import os
 import shutil
 from huggingface_hub import HfFileSystem, hf_hub_download
+from dotenv import load_dotenv
+load_dotenv()
 
-TOKEN = "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"
+
+TOKEN = os.getenv("Token")
 REPO_ID = "neilrigaud/hagrid-subset"
 
 mappa_classi = {
@@ -14,7 +17,7 @@ mappa_classi = {
 }
 
 cartella_base = "dataset/train"
-limite = 100  
+limite = 150  
 
 def scarica_file():
     fs = HfFileSystem(token=TOKEN)
