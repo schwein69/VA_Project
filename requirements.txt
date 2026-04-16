@@ -62,9 +62,9 @@ pycparser==3.0
 PyGetWindow==0.0.9
 Pygments==2.19.2
 PyMsgBox==2.0.1
-pyobjc-core==12.1
-pyobjc-framework-Cocoa==12.1
-pyobjc-framework-Quartz==12.1
+pyobjc-core==12.1; sys_platform == 'darwin'
+pyobjc-framework-Cocoa==12.1; sys_platform == 'darwin'
+pyobjc-framework-Quartz==12.1; sys_platform == 'darwin'
 pyparsing==3.3.2
 pyperclip==1.11.0
 PyRect==0.2.0
@@ -76,7 +76,7 @@ pytz==2026.1.post1
 PyYAML==6.0.3
 requests==2.32.5
 rich==14.3.3
-rubicon-objc==0.5.3
+rubicon-objc==0.5.3; sys_platform == 'darwin'
 scikit-image==0.25.2
 scipy==1.15.3
 shellingham==1.5.4
