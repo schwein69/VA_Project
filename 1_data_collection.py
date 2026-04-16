@@ -1,8 +1,7 @@
 import cv2
 import os
-import random
-import shutil
 import time
+
 # Configurazione
 classes = ['open_palm', 'fist', 'index', 'two_fingers', 'pinch']  
 num_images_per_class = 50 
@@ -10,24 +9,35 @@ num_images_per_class = 50
 root_dir = os.path.dirname(os.path.abspath(__file__))
 dataset_dir = os.path.join(root_dir, 'dataset')
 
+# Creazione delle cartelle per ogni classe
 for cls in classes:
     path = os.path.join(dataset_dir, cls)
     os.makedirs(path, exist_ok=True)
 
 def capture_images_for_class(class_name, num_images):
     cap = cv2.VideoCapture(0)
-    print("Premi 'q' per passare alla classe successiva.\n")
+    
+    print(f"\nPreparati per la classe '{class_name}'...")
+    for i in range(3, 0, -1):
+        print(f"Inizio tra {i} secondi...")
+        time.sleep(1)
+        
+    print("Acquisizione in corso... (Premi 'q' per saltare questa classe)")
 
     saved_images = 0
     last_capture_time = 0
+    
+    class_dir = os.path.join(dataset_dir, class_name)
+
     while saved_images < num_images:
         ret, frame = cap.read()
         if not ret:
             continue
 
         current_time = time.time()
+        
         if current_time - last_capture_time >= 1:
-            save_path = os.path.join(temp_dir, f"{class_name}_{saved_images}.jpg")
+            save_path = os.path.join(class_dir, f"{class_name}_{saved_images}.jpg")
             cv2.imwrite(save_path, frame)
             saved_images += 1
             last_capture_time = current_time
@@ -38,6 +48,7 @@ def capture_images_for_class(class_name, num_images):
         cv2.imshow("Dataset Capture", frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
+            print(f"Acquisizione per '{class_name}' saltata dall'utente.")
             break  
 
     cap.release()
@@ -46,6 +57,5 @@ def capture_images_for_class(class_name, num_images):
 for cls in classes:
     capture_images_for_class(cls, num_images_per_class)
 
-
 print("\nDataset creato con successo!")
-print(f"Cartelle create in '{dataset_dir}/train', '{dataset_dir}/val', '{dataset_dir}/test'")
+print(f"Le tue immagini si trovano dentro la cartella: '{dataset_dir}'")
