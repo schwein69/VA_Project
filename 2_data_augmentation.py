@@ -3,13 +3,11 @@ import os
 import random
 import numpy as np
 
-# Config
-splits = ['train', 'val', 'test']
 classes = ['open_palm', 'fist', 'index', 'two_fingers', 'pinch']
-root_dir = os.path.dirname(os.path.abspath(__file__))
-dataset_dir = os.path.join(root_dir, 'dataset')
-num_aug_per_image = 5  
 
+root_dir = os.path.dirname(os.path.abspath(__file__))
+dataset_dir = os.path.join(root_dir, 'dataset', 'train')
+num_aug_per_image = 5  
 
 def random_flip(img):
     if random.random() > 0.5:
@@ -42,28 +40,34 @@ def random_crop_zoom(img):
         return resized[start_h:start_h+h, start_w:start_w+w]
 
 def augment_image(img):
-    img = random_flip(img)
-    img = random_rotation(img)
-    img = random_brightness_contrast(img)
-    img = random_crop_zoom(img)
-    return img
+    img_copy = img.copy()
+    img_copy = random_flip(img_copy)
+    img_copy = random_rotation(img_copy)
+    img_copy = random_brightness_contrast(img_copy)
+    img_copy = random_crop_zoom(img_copy)
+    return img_copy
 
-for split in splits:
-    for cls in classes:
-        input_dir = os.path.join(dataset_dir, split, cls)
-        if not os.path.exists(input_dir):
-            print(f"Warning: folder not found: {input_dir}")
+print("Inizio Data Augmentation...")
+
+for cls in classes:
+    input_dir = os.path.join(dataset_dir, cls)
+    if not os.path.exists(input_dir):
+        print(f"Attenzione: cartella non trovata per la classe {cls}")
+        continue
+
+    all_images = [f for f in os.listdir(input_dir) if f.endswith(('.jpg', '.png')) and '_aug' not in f]
+    
+    for file_name in all_images:
+        img_path = os.path.join(input_dir, file_name)
+        img = cv2.imread(img_path)
+
+        if img is None:
             continue
 
-        all_images = [f for f in os.listdir(input_dir) if f.endswith('.jpg') or f.endswith('.png')]
-        for file_name in all_images:
-            img_path = os.path.join(input_dir, file_name)
-            img = cv2.imread(img_path)
-
-            # Create augmented copies
-            for i in range(num_aug_per_image):
-                aug_img = augment_image(img)
-                base_name = os.path.splitext(file_name)[0]
-                save_path = os.path.join(input_dir, f"{base_name}_aug{i}.jpg")
-                cv2.imwrite(save_path, aug_img)
-
+        for i in range(num_aug_per_image):
+            aug_img = augment_image(img)
+            base_name = os.path.splitext(file_name)[0]
+            save_path = os.path.join(input_dir, f"{base_name}_aug{i}.jpg")
+            cv2.imwrite(save_path, aug_img)
+            
+    print(f"Classe '{cls}': generate {len(all_images) * num_aug_per_image} nuove immagini.")
