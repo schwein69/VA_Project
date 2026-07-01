@@ -28,17 +28,17 @@ def plot_models_confusion_matrices(y_true, preds_cnn, preds_land, preds_mobile):
     cm_cnn = confusion_matrix(y_true, preds_cnn, normalize='true')
     disp1 = ConfusionMatrixDisplay(confusion_matrix=cm_cnn, display_labels=GESTURE_CLASSES)
     disp1.plot(cmap=plt.cm.Reds, ax=axes[0], xticks_rotation=45)
-    axes[0].set_title('1. CNN Custom')
+    axes[0].set_title('CNN Custom')
 
     cm_land = confusion_matrix(y_true, preds_land, normalize='true')
     disp2 = ConfusionMatrixDisplay(confusion_matrix=cm_land, display_labels=GESTURE_CLASSES)
     disp2.plot(cmap=plt.cm.Greens, ax=axes[1], xticks_rotation=45)
-    axes[1].set_title('2. Rete a Landmarks')
+    axes[1].set_title('Rete a Landmarks')
 
     cm_mobile = confusion_matrix(y_true, preds_mobile, normalize='true')
     disp3 = ConfusionMatrixDisplay(confusion_matrix=cm_mobile, display_labels=GESTURE_CLASSES)
     disp3.plot(cmap=plt.cm.Blues, ax=axes[2], xticks_rotation=45)
-    axes[2].set_title('3. MobileNetV2')
+    axes[2].set_title('MobileNetV2')
 
     plt.tight_layout()
     plt.show()
@@ -57,7 +57,7 @@ if __name__ == "__main__":
     for nome, path in MODEL_PATHS.items():
         if os.path.exists(path):
             modelli[nome] = tf.keras.models.load_model(path)
-            print(f"  -> {nome} caricato con successo!")
+            print(f"  -> {nome} caricato con successo")
         else:
             print(f"  -> ERRORE: File {path} non trovato. Esegui prima l'addestramento.")
             exit()
@@ -155,9 +155,9 @@ if __name__ == "__main__":
     y_pred_mobile = np.argmax(preds_mobile_prob, axis=1)
 
     print_model_reports(y_test, {
-        "CNN Custom (Immagini Processate e Ritagliate)": y_pred_cnn,
+        "CNN Custom": y_pred_cnn,
         "Landmarks MLP": y_pred_land,
-        "MobileNetV2 (Immagini Processate e Ritagliate)": y_pred_mobile
+        "MobileNetV2": y_pred_mobile
     })
     
     plot_models_confusion_matrices(y_test, y_pred_cnn, y_pred_land, y_pred_mobile)

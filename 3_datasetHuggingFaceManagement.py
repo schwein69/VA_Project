@@ -22,7 +22,7 @@ limite = 150
 def scarica_file():
     fs = HfFileSystem(token=TOKEN)
     
-    for classe_hf, tua_cartella in mappa_classi.items():
+    for classe_hf, folder in mappa_classi.items():
         print(f"Cerco file per: {classe_hf}...")
         percorso = f"datasets/{REPO_ID}/data/train/{classe_hf}"
         
@@ -36,7 +36,7 @@ def scarica_file():
                 print(f"Nessun file trovato per {classe_hf}")
                 continue
                 
-            out_dir = os.path.join(cartella_base, tua_cartella)
+            out_dir = os.path.join(cartella_base, folder)
             os.makedirs(out_dir, exist_ok=True)
             
             for i, file_info in enumerate(immagini):
@@ -52,7 +52,7 @@ def scarica_file():
                 destinazione = os.path.join(out_dir, f"hagrid_{classe_hf}_{i+1}.jpg")
                 shutil.copy(cache_path, destinazione)
                 
-            print(f"Ok, {len(immagini)} immagini salvate in '{tua_cartella}'")
+            print(f"Ok, {len(immagini)} immagini salvate in '{folder}'")
                 
         except Exception as e:
             print(f"Errore con {classe_hf}: {e}")

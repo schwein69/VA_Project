@@ -23,7 +23,6 @@ original_images = []  # Per visualizzazione
 roi_images = []  # Per visualizzazione
 max_examples_to_save = 3 # Numero di esempi per classe da visualizzare
 
-# Inizializza il detector di MediaPipe per entrambe le modalità
 model_path = 'hand_landmarker.task'
 if not os.path.exists(model_path):
     url = "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task"
