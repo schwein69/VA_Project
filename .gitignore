@@ -4,3 +4,10 @@ env/
 
 .env
 *.keras
+*.pkl
+yolo_dataset/
+yolo_dataset.zip
+yolo11n.pt
+runs/
+gestures.yaml
+*.pt

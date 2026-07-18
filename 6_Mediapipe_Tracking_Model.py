@@ -40,7 +40,6 @@ class KalmanHandTracker:
     def reset(self):
         self.initialized = False
 
-# VELOCITY CONTROLLER 
 class RelativeVelocityMouse:
     """
     Muove il cursore in base al DELTA frame→frame della punta dell'indice
@@ -137,7 +136,7 @@ class RelativeVelocityMouse:
         self.smooth_dy = 0.0
 
 # ==========================================
-# 2. CONFIGURAZIONE
+# CONFIGURAZIONE
 # ==========================================
 GESTURE_CLASSES = ['open_palm', 'fist', 'index', 'two_fingers', 'pinch']
 IMG_SIZE = (224, 224)
