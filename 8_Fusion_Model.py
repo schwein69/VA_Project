@@ -1,7 +1,4 @@
 """
-virtual_mouse.py
-==========================================
-
   FRAME -> YOLO (thread) -> Kalman (stabilizza bbox) -> hand_crop
                                                               |
                         +-------------------------------------+-------------------------------------+
@@ -17,12 +14,6 @@ virtual_mouse.py
                                        Score_Finale = ALPHA*Score_RGB + BETA*Score_LM
                                                               |
                                                      classe finale -> comando mouse
-
-Il MOVIMENTO del cursore utilizza il NaturalMouseController (Active Area).
-Questo mappa una zona centrale della webcam all'intero schermo del computer,
-permettendo di raggiungere comodamente tutti i bordi senza stancare il braccio.
-Il movimento è azionato in via esclusiva dal classificatore AI fuso
-quando riconosce la classe "index".
 
 Controlli: Q = esci
 """
