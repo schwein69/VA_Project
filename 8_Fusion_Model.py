@@ -1,7 +1,5 @@
 """
 ==============================
-Pipeline real-time a DUE FLUSSI, con tutti i modelli già addestrati e
-caricati da disco (nessun training a runtime).
 
   FRAME
     |
@@ -50,7 +48,6 @@ IMMAGINE (non su una finestra temporale di più frame):
 Qui in real-time viene rifatto esattamente lo stesso identico procedimento
 sul crop del frame corrente.
 
-Controlli: Q = esci
 """
 
 import os
@@ -75,13 +72,13 @@ from collections import deque
 GESTURE_CLASSES = ['open_palm', 'fist', 'index', 'two_fingers', 'pinch']
 IMG_SIZE        = (224, 224)
 
-# ---- Flow RGB (deep + classico, sul crop) ----------------------
+# ---- Flow RGB  ----------------------
 MODEL_PATHS = {
     "CNN"      : "model_name_cnn.keras",
     "MOBILENET": "model_name_mobilenet.keras",
 }
 BOVW_VOCAB_PATH = "model_name_bovw_vocab.pkl"   # MiniBatchKMeans (128-dim, descrittori SIFT)
-BOVW_SVM_PATH   = "model_name_svm.pkl"                     # SVM addestrata sugli istogrammi BoVW
+BOVW_SVM_PATH   = "model_name_bovw_svm.pkl"                     # SVM addestrata sugli istogrammi BoVW
 SIFT_CLAHE_CLIP_LIMIT = 2.0
 SIFT_CLAHE_TILE_GRID  = (8, 8)
 
@@ -89,14 +86,14 @@ WEIGHT_CNN    = 0.40
 WEIGHT_MOBILE = 0.30
 WEIGHT_BOVW   = 0.30  
 
-# ---- Flow Landmarks (deep + classico, sui 21 keypoint) ---------
+# ---- Flow Landmarks  ---------
 LANDMARKS_MODEL_PATH = "model_name_landmarks.keras"
 RF_MODEL_PATH         = "model_name_random_forest.pkl"
 
 WEIGHT_LANDMARKS_KERAS = 0.50
 WEIGHT_RANDOMFOREST    = 0.50
 
-# ---- YOLO (detection mano) -------------------------------------
+# ---- YOLO -------------------------------------
 YOLO_MODEL_PATH = "runs/detect/train/weights/best.pt"
 
 # ---- Score-Level Fusion finale -----------------------------------
@@ -643,7 +640,7 @@ if __name__ == "__main__":
                         col if active else (80, 80, 80),
                         2 if active else 1)
 
-        cv2.imshow("Virtual Mouse v9 — Two-Flow (RGB + Landmarks)", display_frame)
+        cv2.imshow("Virtual Mouse", display_frame)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

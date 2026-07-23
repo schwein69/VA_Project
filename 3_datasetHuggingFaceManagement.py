@@ -52,7 +52,7 @@ def scarica_file():
                 destinazione = os.path.join(out_dir, f"hagrid_{classe_hf}_{i+1}.jpg")
                 shutil.copy(cache_path, destinazione)
                 
-            print(f"Ok, {len(immagini)} immagini salvate in '{folder}'")
+            print(f"{len(immagini)} immagini salvate in '{folder}'")
                 
         except Exception as e:
             print(f"Errore con {classe_hf}: {e}")

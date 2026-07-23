@@ -15,14 +15,8 @@ for cls in classes:
     os.makedirs(path, exist_ok=True)
 
 def capture_images_for_class(class_name, num_images):
-    cap = cv2.VideoCapture(0)
-    
-    print(f"\nPreparati per la classe '{class_name}'...")
-    for i in range(3, 0, -1):
-        print(f"Inizio tra {i} secondi...")
-        time.sleep(1)
-        
-    print("Acquisizione in corso... (Premi 'q' per saltare questa classe)")
+    cap = cv2.VideoCapture(0)        
+    print("Acquisizione in corso (Premi 'q' per saltare questa classe)")
 
     saved_images = 0
     last_capture_time = 0
@@ -57,5 +51,4 @@ def capture_images_for_class(class_name, num_images):
 for cls in classes:
     capture_images_for_class(cls, num_images_per_class)
 
-print("\nDataset creato con successo!")
-print(f"Le tue immagini si trovano dentro la cartella: '{dataset_dir}'")
+print("\nDataset creato con successo")

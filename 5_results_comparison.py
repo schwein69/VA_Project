@@ -45,31 +45,31 @@ def plot_models_confusion_matrices(y_true, preds_cnn, preds_land, preds_mobile, 
     fig, axes = plt.subplots(2, 3, figsize=(18, 12))
     fig.suptitle("Confronto Benchmark: Deep Learning vs Handcrafted", fontsize=18, fontweight='bold', y=0.95)
 
-    # 1. CNN Custom
+    # CNN Custom
     cm_cnn = confusion_matrix(y_true, preds_cnn, normalize='true')
     disp1 = ConfusionMatrixDisplay(confusion_matrix=cm_cnn, display_labels=GESTURE_CLASSES)
     disp1.plot(cmap=plt.cm.Reds, ax=axes[0, 0], xticks_rotation=45)
     axes[0, 0].set_title('CNN Custom (Pixel)')
 
-    # 2. MobileNetV2
+    # MobileNet
     cm_mobile = confusion_matrix(y_true, preds_mobile, normalize='true')
     disp2 = ConfusionMatrixDisplay(confusion_matrix=cm_mobile, display_labels=GESTURE_CLASSES)
     disp2.plot(cmap=plt.cm.Blues, ax=axes[0, 1], xticks_rotation=45)
     axes[0, 1].set_title('MobileNetV2 (Pixel)')
 
-    # 3. Landmarks MLP (Keras)
+    # Landmarks MLP (Keras)
     cm_land = confusion_matrix(y_true, preds_land, normalize='true')
     disp3 = ConfusionMatrixDisplay(confusion_matrix=cm_land, display_labels=GESTURE_CLASSES)
     disp3.plot(cmap=plt.cm.Greens, ax=axes[0, 2], xticks_rotation=45)
     axes[0, 2].set_title('Rete Neurale MLP (Landmarks)')
 
-    # 4. Random Forest
+    # Random Forest
     cm_rf = confusion_matrix(y_true, preds_rf, normalize='true')
     disp4 = ConfusionMatrixDisplay(confusion_matrix=cm_rf, display_labels=GESTURE_CLASSES)
     disp4.plot(cmap=plt.cm.Oranges, ax=axes[1, 0], xticks_rotation=45)
     axes[1, 0].set_title('Random Forest (Landmarks)')
 
-    # 5. Bag of Visual Words (SVM)
+    # Bag of Visual Words (SVM)
     cm_bovw = confusion_matrix(y_true, preds_bovw, normalize='true')
     disp5 = ConfusionMatrixDisplay(confusion_matrix=cm_bovw, display_labels=GESTURE_CLASSES)
     disp5.plot(cmap=plt.cm.Purples, ax=axes[1, 1], xticks_rotation=45)
@@ -150,7 +150,7 @@ if __name__ == "__main__":
                 hand_crop = img[ymin:ymax, xmin:xmax]
                 
                 if hand_crop.size > 0:
-                    # --- 1. Estrazione Input Keras (CNN / MobileNet) ---
+                    # Estrazione Input Keras (CNN / MobileNet) 
                     lab = cv2.cvtColor(hand_crop, cv2.COLOR_BGR2LAB)
                     clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
                     lab[:, :, 0] = clahe.apply(lab[:, :, 0])
@@ -160,11 +160,10 @@ if __name__ == "__main__":
                     cnn_input = hand_resized / 255.0
                     mobile_input = tf.keras.applications.mobilenet_v2.preprocess_input(hand_resized.astype(np.float32))
                     
-                    # --- 2. Estrazione Input Classici (MLP / RF) ---
+                    # Estrazione Input (MLP / RF) 
                     punti_normalizzati = normalize_landmarks(landmarks)
                     
-                    # --- 3. Estrazione Input BoVW (SIFT -> K-Means) ---
-                    # Effettuiamo SIFT sull'immagine intera in scala di grigi
+                    # Estrazione Input BoVW 
                     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                     gray_enhanced = clahe.apply(gray)
                     keypoints, descriptors = sift.detectAndCompute(gray_enhanced, None)
@@ -190,31 +189,24 @@ if __name__ == "__main__":
 
     print("\nGenerazione predizioni sul Test Set")
     
-    # Split perfettamente allineato per tutti i 5 modelli
     _, X_test_cnn, _, y_test = train_test_split(X_cnn_all, y_labels_all, test_size=0.30, random_state=42)
     _, X_test_mobile, _, _ = train_test_split(X_mobile_all, y_labels_all, test_size=0.30, random_state=42)
     _, X_test_land, _, _ = train_test_split(X_land_all, y_labels_all, test_size=0.30, random_state=42)
     _, X_test_bovw, _, _ = train_test_split(X_bovw_all, y_labels_all, test_size=0.30, random_state=42)
 
-    # 1. Predizione CNN
     preds_cnn_prob = modelli["CNN"].predict(X_test_cnn, verbose=0)
     y_pred_cnn = np.argmax(preds_cnn_prob, axis=1)
 
-    # 2. Predizione Landmarks (Keras MLP)
     preds_land_prob = modelli["LANDMARKS"].predict(X_test_land, verbose=0)
     y_pred_land = np.argmax(preds_land_prob, axis=1)
 
-    # 3. Predizione MobileNet
     preds_mobile_prob = modelli["MOBILENET"].predict(X_test_mobile, verbose=0)
     y_pred_mobile = np.argmax(preds_mobile_prob, axis=1)
     
-    # 4. Predizione Random Forest
     y_pred_rf = modelli["RANDOM_FOREST"].predict(X_test_land)
     
-    # 5. Predizione Bag of Visual Words (SVM)
     y_pred_bovw = modelli["BOVW_SVM"].predict(X_test_bovw)
 
-    # Stampa in console
     print_model_reports(y_test, {
         "CNN Custom": y_pred_cnn,
         "MobileNetV2": y_pred_mobile,
@@ -223,5 +215,4 @@ if __name__ == "__main__":
         "Bag of Visual Words": y_pred_bovw
     })
     
-    # Disegna grafici a schermo
     plot_models_confusion_matrices(y_test, y_pred_cnn, y_pred_land, y_pred_mobile, y_pred_rf, y_pred_bovw)

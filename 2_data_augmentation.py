@@ -47,7 +47,6 @@ def augment_image(img):
     img_copy = random_crop_zoom(img_copy)
     return img_copy
 
-print("Inizio Data Augmentation...")
 
 for cls in classes:
     input_dir = os.path.join(dataset_dir, cls)
