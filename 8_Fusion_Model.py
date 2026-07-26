@@ -91,7 +91,7 @@ def normalize_landmarks(landmarks):
 
 
 # ============================================================
-# KALMAN BOX TRACKER — stabilizza il bounding box di YOLO
+# KALMAN BOX TRACKER 
 # ============================================================
 class KalmanBoxTracker:
     def __init__(self):
@@ -173,13 +173,13 @@ class JoystickMouseController:
         return self.curr_x, self.curr_y
         
     def draw_active_area(self, frame):
-        color = (255, 0, 255) # Magenta acceso
+        color = (255, 0, 255) # Magenta 
         thick = 4 # Spessore linea alto
         
-        # Disegna la zona morta (cerchio ampio)
+        # Disegna la zona morta 
         cv2.circle(frame, (self.anchor_x, self.anchor_y), self.deadzone, color, thick)
         
-        # Disegna la croce grande (40px per lato)
+        # Disegna la croce grande 
         cv2.line(frame, (self.anchor_x - 40, self.anchor_y), (self.anchor_x + 40, self.anchor_y), color, thick)
         cv2.line(frame, (self.anchor_x, self.anchor_y - 40), (self.anchor_x, self.anchor_y + 40), color, thick)
         
