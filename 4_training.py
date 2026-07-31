@@ -18,9 +18,7 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# ==========================================
 # FUNZIONE DI NORMALIZZAZIONE LANDMARKS
-# ==========================================
 def normalize_landmarks(landmarks):
     points = np.array([[lm.x, lm.y, lm.z] for lm in landmarks])
     base_x, base_y, base_z = points[0]
@@ -179,7 +177,7 @@ if TIPO_ESPERIMENTO in ["RANDOM_FOREST", "BOVW_SVM"]:
     print(f"Modello salvato come '{model_name}'")
 
 else:
-    print(f"\n--- ADDESTRAMENTO RETE NEURALE ({TIPO_ESPERIMENTO}) ---")
+    print(f"\n ADDESTRAMENTO RETE NEURALE ({TIPO_ESPERIMENTO}) ")
     X_train, X_val, y_train, y_val = train_test_split(X_train_full, y_train_full, test_size=0.30, random_state=42)
     
     if TIPO_ESPERIMENTO == "CNN":
@@ -232,7 +230,7 @@ else:
     model_name = f"model_name_{TIPO_ESPERIMENTO.lower()}.keras"
     model.save(model_name) 
 
-print("\n === TEST ===")
+print("\n  TEST ")
 numero_immagini = 5
 indici = random.sample(range(len(X_test)), min(numero_immagini, len(X_test)))
 
