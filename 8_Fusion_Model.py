@@ -1,23 +1,3 @@
-"""
-  FRAME -> YOLO (thread) -> Kalman (stabilizza bbox) -> hand_crop
-                                                              |
-                        +-------------------------------------+-------------------------------------+
-                        |                                                                             |
-                        v                                                                             v
-              FLOW RGB (thread separato)                                            FLOW LANDMARKS (sincrono)
-              CNN + MobileNet + BoVW(SIFT)/SVM                                      MediaPipe -> normalize_landmarks()
-                        |                                                           -> Landmarks(keras) + RandomForest
-                        v                                                                             |
-                  Score_RGB                                                                     Score_LM
-                        +-------------------------------------+-------------------------------------+
-                                                              |
-                                       Score_Finale = ALPHA*Score_RGB + BETA*Score_LM
-                                                              |
-                                                     classe finale -> comando mouse
-
-Controlli: Q = esci
-"""
-
 import os
 import cv2
 import numpy as np
@@ -33,9 +13,7 @@ import threading
 import queue
 import pickle
 
-# ============================================================
 # CONFIGURAZIONE
-# ============================================================
 GESTURE_CLASSES = ['open_palm', 'fist', 'index', 'two_fingers', 'pinch']
 IMG_SIZE        = (224, 224)
 
@@ -68,16 +46,14 @@ YOLO_IMGSZ = 384
 WEIGHT_FLOW_RGB = 0.40
 WEIGHT_FLOW_LM  = 0.60
 
-GESTURE_CONFIDENCE_THRESHOLD = 0.60
+GESTURE_CONFIDENCE_THRESHOLD = 0.40
 
 pyautogui.FAILSAFE = False
 pyautogui.PAUSE    = 0
 SCREEN_W, SCREEN_H = pyautogui.size()
 
 
-# ============================================================
 # LANDMARK: normalizzazione
-# ============================================================
 def normalize_landmarks(landmarks):
     points = np.array([[lm.x, lm.y, lm.z] for lm in landmarks])
     base_x, base_y, base_z = points[0]
@@ -90,9 +66,7 @@ def normalize_landmarks(landmarks):
     return points.flatten()
 
 
-# ============================================================
 # KALMAN BOX TRACKER 
-# ============================================================
 class KalmanBoxTracker:
     def __init__(self):
         self.kf = cv2.KalmanFilter(8, 4)
@@ -128,9 +102,7 @@ class KalmanBoxTracker:
         self.initialized = False
 
 
-# ============================================================
 # MOUSE Controller
-# ============================================================
 class JoystickMouseController:
     """
     Controller a 'Joystick Virtuale' a 8 direzioni.
@@ -173,7 +145,7 @@ class JoystickMouseController:
         return self.curr_x, self.curr_y
         
     def draw_active_area(self, frame):
-        color = (255, 0, 255) # Magenta 
+        color = (0, 0, 255) # Rosso 
         thick = 4 # Spessore linea alto
         
         # Disegna la zona morta 
@@ -182,6 +154,11 @@ class JoystickMouseController:
         # Disegna la croce grande 
         cv2.line(frame, (self.anchor_x - 40, self.anchor_y), (self.anchor_x + 40, self.anchor_y), color, thick)
         cv2.line(frame, (self.anchor_x, self.anchor_y - 40), (self.anchor_x, self.anchor_y + 40), color, thick)
+
+        threshold_y = cam_h // 3
+        cv2.line(display_frame, (0, threshold_y), (cam_w, threshold_y), color, 1)
+        cv2.putText(display_frame, "SU", (5, threshold_y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (150, 150, 150), 1)
+        cv2.putText(display_frame, "GIU", (5, threshold_y + 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (150, 150, 150), 1)
         
         # Etichetta
         cv2.putText(frame, "JOYSTICK", (self.anchor_x - 45, self.anchor_y - self.deadzone - 20), cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
@@ -189,9 +166,7 @@ class JoystickMouseController:
     def reset(self):
         pass
 
-# ============================================================
 # WRAPPER MODELLI CLASSICI (RandomForest / SVM) -> vettore prob.
-# ============================================================
 def _proba_or_softmax(clf, X_row, n_classes):
     if hasattr(clf, "predict_proba"):
         proba = clf.predict_proba(X_row.reshape(1, -1))[0]
@@ -271,9 +246,7 @@ def yolo_worker_thread(yolo_model):
             pass
 
 
-# ============================================================
 # THREAD FLOW RGB 
-# ============================================================
 rgb_frame_queue = queue.Queue(maxsize=1)
 score_lock      = threading.Lock()
 global_score_rgb = None
@@ -328,9 +301,6 @@ def fuse_scores(score_rgb, score_lm):
     return cls_id, float(fused[cls_id]), fused
 
 
-# ============================================================
-# MAIN
-# ============================================================
 if __name__ == "__main__":
 
     print("\nInizializzazione Modelli RGB...")
@@ -393,9 +363,10 @@ if __name__ == "__main__":
 
     last_click_time = 0
     click_cooldown  = 1.0
-    scroll_accumulator = 0
+    last_scroll_time = 0
+    SCROLL_INTERVAL = 0.08      # secondi tra uno scroll e l'altro (più basso = più veloce)
+    SCROLL_TICK = 10           # quantità di scroll per ogni "tick"
     last_timestamp_ms  = 0
-    prev_ty = None
 
     cur_mouse_x = float(SCREEN_W // 2)
     cur_mouse_y = float(SCREEN_H // 2)
@@ -491,15 +462,19 @@ if __name__ == "__main__":
                                 last_click_time = time.time()
                                 
                         elif cur_gesture == "pinch":
-                            if prev_ty is not None:
-                                scroll_accumulator += (ty - prev_ty)
-                            if scroll_accumulator < -8:
-                                pyautogui.scroll(100)
-                                scroll_accumulator = 0
-                            elif scroll_accumulator > 8:
-                                pyautogui.scroll(-10)
-                                scroll_accumulator = 0
-                            cv2.putText(display_frame, "SCROLLING...", (xmin, ymin - 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 200, 0), 2)
+                            mid_y = cam_h / 3
+                            if ty < mid_y:
+                                scroll_label = "SCROLL SU"
+                                if (time.time() - last_scroll_time) > SCROLL_INTERVAL:
+                                    pyautogui.scroll(SCROLL_TICK)
+                                    last_scroll_time = time.time()
+                            else:
+                                scroll_label = "SCROLL GIU"
+                                if (time.time() - last_scroll_time) > SCROLL_INTERVAL:
+                                    pyautogui.scroll(-SCROLL_TICK)
+                                    last_scroll_time = time.time()
+                            cv2.putText(display_frame, scroll_label, (xmin, ymin - 40),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 200, 0), 2)
                         elif cur_gesture == "fist":
                             if (time.time() - last_click_time) > click_cooldown:
                                 pyautogui.rightClick()
@@ -510,11 +485,7 @@ if __name__ == "__main__":
                                 pyautogui.click(clicks=2, interval=0.1)
                                 last_click_time = time.time()
                                 
-                    if cur_gesture != "pinch":
-                        scroll_accumulator = 0
                         
-                    prev_ty = ty
-
                     cv2.circle(display_frame, (tx, ty), 7, (0, 220, 255), -1)
 
                     if fused is not None:
@@ -527,7 +498,6 @@ if __name__ == "__main__":
         else:
             box_kalman.reset()
             mouse_ctrl.reset()
-            prev_ty = None
             scroll_accumulator = 0
 
         fps = 1.0 / (time.time() - t0 + 1e-9)
